@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" 
+          content="default-src 'self'; 
+                   script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+                   style-src 'self' 'unsafe-inline';
+                   connect-src 'self';">
+    <title>Tetris 3D MVP</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Game Container -->
+        <div id="game-container">
+            <canvas id="game-canvas"></canvas>
+        </div>
+        
+        <!-- UI Elements -->
+        <div id="ui-container">
+            <div id="game-info">
+                <div class="info-panel">
+                    <h3>Score</h3>
+                    <span id="score">0</span>
+                </div>
+                <div class="info-panel">
+                    <h3>Level</h3>
+                    <span id="level">1</span>
+                </div>
+                <div class="info-panel">
+                    <h3>Lines</h3>
+                    <span id="lines">0</span>
+                </div>
+            </div>
+            
+            <div id="next-piece-container">
+                <h3>Next Piece</h3>
+                <canvas id="next-piece-canvas"></canvas>
+            </div>
+            
+            <div id="controls-info">
+                <h3>Controls</h3>
+                <div class="control-item">← → Move</div>
+                <div class="control-item">↓ Soft Drop</div>
+                <div class="control-item">↑ Rotate</div>
+                <div class="control-item">Space Hard Drop</div>
+            </div>
+        </div>
+        
+        <!-- Game State Screens -->
+        <div id="start-screen" class="screen">
+            <h1>Tetris 3D</h1>
+            <button id="start-button">Start Game</button>
+        </div>
+        
+        <div id="game-over-screen" class="screen hidden">
+            <h2>Game Over</h2>
+            <p>Final Score: <span id="final-score">0</span></p>
+            <button id="restart-button">Play Again</button>
+        </div>
+        
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="screen">
+            <h2>Loading...</h2>
+            <div class="loader"></div>
+        </div>
+    </div>
+    
+    <!-- Three.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+    
+    <!-- Game Scripts -->
+    <script src="src/game/GameBoard.js"></script>
+    <script src="src/game/TetrominoPiece.js"></script>
+    <script src="src/game/GameEngine.js"></script>
+    <script src="src/game/ScoringSystem.js"></script>
+    <script src="src/ui/UIManager.js"></script>
+    <script src="src/graphics/CameraController.js"></script>
+    <script src="src/graphics/LightingSystem.js"></script>
+    <script src="src/performance/PerformanceMonitor.js"></script>
+    <script src="src/compatibility/BrowserCompatibility.js"></script>
+    <script src="src/main.js"></script>
+</body>
+</html>

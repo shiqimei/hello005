@@ -1,0 +1,114 @@
+[
+  {
+    "title": "Three.js Official Documentation",
+    "content": "Official Three.js documentation for WebGL 3D library, providing comprehensive guides for scene setup, geometry creation, materials, lighting, and camera systems used throughout the 3D rendering implementation.",
+    "path": "src/main.js",
+    "line_range": [70, 90],
+    "url": "https://threejs.org/docs/"
+  },
+  {
+    "title": "WebGL API Reference",
+    "content": "Mozilla Developer Network documentation for WebGL API, used for browser compatibility detection and understanding WebGL capabilities and limitations.",
+    "path": "src/compatibility/BrowserCompatibility.js",
+    "line_range": [15, 50],
+    "url": "https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API"
+  },
+  {
+    "title": "Tetris Guideline - Official Rules",
+    "content": "The Tetris Company's official guidelines for piece shapes, rotation systems, and game mechanics. Used to ensure accurate implementation of all 7 tetromino pieces and traditional gameplay rules.",
+    "path": "src/game/TetrominoPiece.js",
+    "line_range": [2, 90],
+    "url": "https://tetris.fandom.com/wiki/Tetris_Guideline"
+  },
+  {
+    "title": "CSS Media Queries Specification",
+    "content": "W3C specification for CSS media queries, used to implement responsive design that adapts the UI layout for different screen sizes and device types.",
+    "path": "styles/main.css",
+    "line_range": [200, 280],
+    "url": "https://www.w3.org/TR/css3-mediaqueries/"
+  },
+  {
+    "title": "Web Performance API Documentation",
+    "content": "MDN documentation for the Performance API, used to implement frame rate monitoring and performance measurement throughout the game.",
+    "path": "src/performance/PerformanceMonitor.js",
+    "line_range": [1, 100],
+    "url": "https://developer.mozilla.org/en-US/docs/Web/API/Performance"
+  },
+  {
+    "title": "WCAG 2.1 Accessibility Guidelines",
+    "content": "Web Content Accessibility Guidelines used to implement screen reader support, keyboard navigation, and high contrast mode for users with disabilities.",
+    "path": "src/ui/UIManager.js",
+    "line_range": [80, 120],
+    "url": "https://www.w3.org/WAI/WCAG21/Understanding/"
+  },
+  {
+    "title": "Content Security Policy Reference",
+    "content": "Mozilla Developer Network guide for implementing Content Security Policy headers to prevent XSS attacks while allowing necessary external resources.",
+    "path": "index.html",
+    "line_range": [6, 11],
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP"
+  },
+  {
+    "title": "RequestAnimationFrame API",
+    "content": "MDN documentation for requestAnimationFrame, used to implement the main game loop with optimal frame timing and browser-synchronized rendering.",
+    "path": "src/game/GameEngine.js",
+    "line_range": [100, 150],
+    "url": "https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame"
+  },
+  {
+    "title": "Speech Synthesis API",
+    "content": "Web Speech API documentation for implementing screen reader announcements and audio accessibility features.",
+    "path": "src/ui/UIManager.js",
+    "line_range": [350, 370],
+    "url": "https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis"
+  },
+  {
+    "title": "Three.js BufferGeometry Guide",
+    "content": "Three.js documentation for efficient geometry creation and management, used to optimize 3D rendering performance and memory usage.",
+    "path": "src/game/GameBoard.js",
+    "line_range": [30, 80],
+    "url": "https://threejs.org/docs/#api/en/core/BufferGeometry"
+  },
+  {
+    "title": "ES6 Classes and Modules",
+    "content": "ECMAScript 2015 specification for class syntax and module systems, used throughout the codebase for object-oriented architecture.",
+    "path": "src/game/GameEngine.js",
+    "line_range": [1, 20],
+    "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes"
+  },
+  {
+    "title": "Traditional Tetris Scoring System",
+    "content": "Classic Tetris scoring mechanics and level progression rules, implemented to maintain familiarity with traditional Tetris gameplay.",
+    "path": "src/game/ScoringSystem.js",
+    "line_range": [10, 100],
+    "url": "https://tetris.fandom.com/wiki/Scoring"
+  },
+  {
+    "title": "Device Memory API",
+    "content": "Web API for detecting device memory capabilities, used in browser compatibility checks to optimize game settings for different hardware.",
+    "path": "src/compatibility/BrowserCompatibility.js",
+    "line_range": [150, 180],
+    "url": "https://developer.mozilla.org/en-US/docs/Web/API/Navigator/deviceMemory"
+  },
+  {
+    "title": "Three.js Shadow Mapping",
+    "content": "Three.js documentation for implementing shadows in 3D scenes, used to enhance visual depth and piece distinction in the game.",
+    "path": "src/graphics/LightingSystem.js",
+    "line_range": [50, 90],
+    "url": "https://threejs.org/docs/#api/en/lights/shadows/LightShadow"
+  },
+  {
+    "title": "Gamepad API Specification",
+    "content": "W3C specification for gamepad input detection, included in browser compatibility checks for potential future controller support.",
+    "path": "src/compatibility/BrowserCompatibility.js",
+    "line_range": [120, 140],
+    "url": "https://www.w3.org/TR/gamepad/"
+  },
+  {
+    "title": "3D Browser Games Design Patterns",
+    "content": "Internal knowledge base guidance for designing 3D browser games using Three.js, especially grid-based games like Tetris. Covers architecture patterns, optimization strategies, performance targets, and implementation best practices.",
+    "path": "src/main.js",
+    "line_range": [1, 50],
+    "knowledge_uuid": "29fe3f52-af38-4199-af06-e6004936c8e9"
+  }
+]

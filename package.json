@@ -1,0 +1,27 @@
+{
+  "name": "tetris-3d-worktree-4173446637",
+  "version": "1.0.0",
+  "description": "a threejs tetris 3d game",
+  "main": "test-runner.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shiqimei/tetris-3d.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/shiqimei/tetris-3d/issues"
+  },
+  "homepage": "https://github.com/shiqimei/tetris-3d#readme",
+  "dependencies": {
+    "jsdom": "^27.0.0"
+  }
+}

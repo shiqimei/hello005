@@ -1,0 +1,92 @@
+[
+  {
+    "title": "Three.js Library Selection",
+    "content": "Three.js was chosen as the 3D rendering library because it provides excellent WebGL abstraction, comprehensive documentation, and strong browser compatibility. It offers built-in geometry, materials, lighting, and camera systems that significantly reduce development time while maintaining performance.",
+    "path": "index.html",
+    "line_range": [41, 41]
+  },
+  {
+    "title": "Object-Oriented Architecture",
+    "content": "The game uses a modular object-oriented approach with separate classes for GameBoard, TetrominoPiece, GameEngine, ScoringSystem, UIManager, CameraController, LightingSystem, PerformanceMonitor, and BrowserCompatibility. This separation of concerns improves maintainability, testability, and allows for easier feature additions.",
+    "path": "src/game/GameBoard.js",
+    "line_range": [1, 10]
+  },
+  {
+    "title": "Grid-Based Collision Detection",
+    "content": "The game board uses a 2D array (grid) for collision detection and game logic while maintaining separate 3D meshes for rendering. This hybrid approach provides efficient collision detection (O(1) lookups) while enabling rich 3D visualization.",
+    "path": "src/game/GameBoard.js",
+    "line_range": [10, 15]
+  },
+  {
+    "title": "Standard Tetromino Definitions",
+    "content": "All 7 standard Tetris pieces (I, O, T, S, Z, J, L) are implemented with their traditional colors and rotation patterns. Each piece stores multiple rotation states as 2D arrays for accurate collision detection and rendering.",
+    "path": "src/game/TetrominoPiece.js",
+    "line_range": [2, 90]
+  },
+  {
+    "title": "Event-Driven Architecture",
+    "content": "The game uses an event system to decouple components. Game events like piece placement, line clearing, and score updates are emitted and handled by interested components. This reduces tight coupling and improves maintainability.",
+    "path": "src/game/GameEngine.js",
+    "line_range": [400, 420]
+  },
+  {
+    "title": "Performance Monitoring Integration",
+    "content": "Real-time FPS monitoring and performance tracking ensure the game meets the PRD requirement of 30+ FPS. The system can automatically adjust quality settings based on device performance to maintain smooth gameplay.",
+    "path": "src/performance/PerformanceMonitor.js",
+    "line_range": [1, 50]
+  },
+  {
+    "title": "Orthographic Camera Choice",
+    "content": "An orthographic camera is used instead of perspective to maintain the traditional Tetris viewing angle while adding 3D depth. This prevents the distortion that could confuse players familiar with 2D Tetris while still providing the benefits of 3D visualization.",
+    "path": "src/graphics/CameraController.js",
+    "line_range": [15, 25]
+  },
+  {
+    "title": "Multi-Light Setup for Visual Clarity",
+    "content": "The lighting system uses multiple directional lights (primary, secondary, fill) plus ambient lighting to ensure all pieces are clearly visible and distinguishable. This addresses the PRD requirement for clear visual distinction between pieces and board elements.",
+    "path": "src/graphics/LightingSystem.js",
+    "line_range": [25, 85]
+  },
+  {
+    "title": "Responsive Design Implementation",
+    "content": "The UI uses CSS flexbox and media queries to adapt to different screen sizes, with special considerations for mobile devices. This ensures the game is playable across the target browsers and devices specified in the PRD.",
+    "path": "styles/main.css",
+    "line_range": [200, 280]
+  },
+  {
+    "title": "Browser Compatibility Checks",
+    "content": "Comprehensive browser and device capability detection ensures the game only runs on supported platforms (Chrome 80+, Firefox 75+, Safari 13+, Edge 80+) and provides graceful fallbacks or warnings for unsupported environments.",
+    "path": "src/compatibility/BrowserCompatibility.js",
+    "line_range": [1, 50]
+  },
+  {
+    "title": "Content Security Policy",
+    "content": "CSP headers are implemented to prevent XSS attacks while allowing necessary resources from CDNs (Three.js). This follows security best practices for web applications.",
+    "path": "index.html",
+    "line_range": [6, 11]
+  },
+  {
+    "title": "Accessibility Features",
+    "content": "Screen reader support, keyboard navigation, high contrast mode, and ARIA labels are implemented to make the game accessible to users with disabilities, exceeding the basic PRD requirements.",
+    "path": "src/ui/UIManager.js",
+    "line_range": [80, 120]
+  },
+  {
+    "title": "Memory Management Strategy",
+    "content": "The game implements proper cleanup and disposal methods for Three.js objects to prevent memory leaks during extended play sessions. Object pooling is used for frequently created/destroyed elements.",
+    "path": "src/main.js",
+    "line_range": [350, 380]
+  },
+  {
+    "title": "Traditional Tetris Scoring",
+    "content": "The scoring system follows traditional Tetris rules with points for single (100), double (300), triple (500), and Tetris (800) line clears, multiplied by level. This maintains familiarity for existing Tetris players.",
+    "path": "src/game/ScoringSystem.js",
+    "line_range": [10, 30]
+  },
+  {
+    "title": "Adaptive Quality Settings",
+    "content": "The game automatically adjusts rendering quality, lighting complexity, and effects based on device performance to maintain target frame rates. This ensures good performance across a wide range of hardware capabilities.",
+    "path": "src/main.js",
+    "line_range": [180, 220]
+  }
+]

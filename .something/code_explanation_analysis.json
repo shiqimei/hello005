@@ -1,0 +1,355 @@
+{
+  "modules": [
+    {
+      "id": "core_game_systems",
+      "type": "FUNCTIONAL",
+      "title": "Core Game Systems",
+      "description": "Core Tetris gameplay mechanics including game board, pieces, and engine logic",
+      "implementationStatus": "IMPLEMENTED",
+      "subModules": [
+        {
+          "id": "game_board_3d",
+          "title": "3D Game Board System",
+          "description": "3D visual game board with grid rendering and collision detection",
+          "implementationStatus": "IMPLEMENTED",
+          "mermaidDiagram": "```mermaid\ngraph TD\n    A[GameBoard Class] --> B[3D Grid Rendering]\n    A --> C[Collision Detection]\n    A --> D[Line Clearing Logic]\n    B --> E[THREE.js Scene]\n    C --> F[Piece Validation]\n    D --> G[Grid State Management]\n```",
+          "implementationBlocks": [
+            {
+              "filePath": "src/game/GameBoard.js",
+              "functionName": "GameBoard constructor",
+              "startLine": 1,
+              "endLine": 18,
+              "language": "javascript",
+              "code": "class GameBoard {\n    constructor(width = 10, height = 20, depth = 1) {\n        this.width = width;\n        this.height = height;\n        this.depth = depth;\n        \n        // Initialize 2D grid for game logic\n        this.grid = Array(height).fill().map(() => Array(width).fill(0));\n        \n        // 3D rendering components\n        this.boardMesh = new THREE.Group();\n        this.cellSize = 1;\n        this.borderMaterial = null;\n        this.emptyCellMaterial = null;\n        \n        this.initializeGeometry();\n        this.setupMaterials();\n    }",
+              "purpose": "Initializes the 3D game board with standard Tetris dimensions and Three.js mesh components"
+            },
+            {
+              "filePath": "src/game/GameBoard.js",
+              "functionName": "isValidPosition",
+              "startLine": 110,
+              "endLine": 138,
+              "language": "javascript",
+              "code": "isValidPosition(piece, x, y, rotation = 0) {\n        if (!piece || !piece.getCurrentShape) {\n            return false;\n        }\n        \n        const shape = piece.getCurrentShape(rotation);\n        \n        for (let row = 0; row < shape.length; row++) {\n            for (let col = 0; col < shape[row].length; col++) {\n                if (shape[row][col]) {\n                    const boardX = x + col;\n                    const boardY = y + row;\n                    \n                    // Check bounds\n                    if (boardX < 0 || boardX >= this.width || \n                        boardY < 0 || boardY >= this.height) {\n                        return false;\n                    }\n                    \n                    // Check collision with placed pieces\n                    if (this.grid[boardY][boardX] !== 0) {\n                        return false;\n                    }\n                }\n            }\n        }\n        \n        return true;\n    }",
+              "purpose": "Core collision detection system that validates piece placement and movement within game board boundaries"
+            }
+          ]
+        },
+        {
+          "id": "tetromino_pieces",
+          "title": "Tetromino Piece System",
+          "description": "Implementation of all 7 standard Tetris pieces with 3D rendering and rotation mechanics",
+          "implementationStatus": "IMPLEMENTED",
+          "mermaidDiagram": "```mermaid\ngraph TD\n    A[TetrominoPiece Class] --> B[Piece Types I,O,T,S,Z,J,L]\n    A --> C[Rotation States]\n    A --> D[3D Block Rendering]\n    B --> E[Shape Definitions]\n    C --> F[Rotation Logic]\n    D --> G[THREE.js Meshes]\n```",
+          "implementationBlocks": [
+            {
+              "filePath": "src/game/TetrominoPiece.js",
+              "functionName": "PIECE_TYPES",
+              "startLine": 2,
+              "endLine": 20,
+              "language": "javascript",
+              "code": "static PIECE_TYPES = {\n        I: {\n            shapes: [\n                [\n                    [0, 0, 0, 0],\n                    [1, 1, 1, 1],\n                    [0, 0, 0, 0],\n                    [0, 0, 0, 0]\n                ],\n                [\n                    [0, 0, 1, 0],\n                    [0, 0, 1, 0],\n                    [0, 0, 1, 0],\n                    [0, 0, 1, 0]\n                ]\n            ],\n            color: 0x00FFFF, // Cyan\n            name: 'I'\n        },",
+              "purpose": "Defines the I-piece tetromino with its rotation states and color properties"
+            }
+          ]
+        },
+        {
+          "id": "game_engine",
+          "title": "Game Engine Core",
+          "description": "Main game loop, input handling, and game state management",
+          "implementationStatus": "IMPLEMENTED",
+          "mermaidDiagram": "```mermaid\nsequenceDiagram\n    participant User\n    participant GameEngine\n    participant GameBoard\n    participant Piece\n    User->>GameEngine: Input (Arrow Keys)\n    GameEngine->>Piece: Move/Rotate\n    GameEngine->>GameBoard: Validate Position\n    GameBoard-->>GameEngine: Valid/Invalid\n    GameEngine->>GameEngine: Update Game State\n    GameEngine->>Renderer: Render Frame\n```",
+          "implementationBlocks": [
+            {
+              "filePath": "src/game/GameEngine.js",
+              "functionName": "gameLoop",
+              "startLine": 113,
+              "endLine": 129,
+              "language": "javascript",
+              "code": "gameLoop(currentTime) {\n        if (!this.isRunning) {\n            return;\n        }\n        \n        const deltaTime = currentTime - this.lastFrameTime;\n        this.lastFrameTime = currentTime;\n        \n        if (!this.isPaused && !this.isGameOver) {\n            this.update(deltaTime);\n        }\n        \n        this.render();\n        \n        // Continue loop\n        requestAnimationFrame(this.gameLoop.bind(this));\n    }",
+              "purpose": "Main game loop that drives the game state updates and rendering at 60 FPS"
+            },
+            {
+              "filePath": "src/game/GameEngine.js",
+              "functionName": "placePiece",
+              "startLine": 283,
+              "endLine": 315,
+              "language": "javascript",
+              "code": "placePiece() {\n        if (!this.currentPiece) return;\n        \n        // Place piece on board\n        this.gameBoard.placePiece(this.currentPiece, this.currentPiece.x, this.currentPiece.y);\n        \n        // Create 3D representation of placed blocks\n        this.createPlacedBlocks(this.currentPiece);\n        \n        // Remove current piece from scene\n        this.currentPiece.removeFromScene(this.renderer.scene);\n        \n        // Update statistics\n        this.gameStats.totalPiecesPlaced++;\n        \n        // Check for completed lines\n        const completedLines = this.gameBoard.findCompletedLines();\n        if (completedLines.length > 0) {\n            this.clearLines(completedLines);\n        }\n        \n        // Spawn next piece\n        this.spawnNewPiece();\n        \n        this.emit('piecePlaced', this.currentPiece);\n    }",
+              "purpose": "Handles piece placement logic including 3D block creation and line clearing detection"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "3d_graphics_rendering",
+      "type": "FUNCTIONAL", 
+      "title": "3D Graphics & Rendering",
+      "description": "Three.js-based 3D rendering system with camera controls, lighting, and visual effects",
+      "implementationStatus": "IMPLEMENTED",
+      "subModules": [
+        {
+          "id": "camera_controller",
+          "title": "Camera Controller System",
+          "description": "3D camera positioning and optional rotation for optimal gameplay view",
+          "implementationStatus": "IMPLEMENTED",
+          "mermaidDiagram": "```mermaid\ngraph TD\n    A[CameraController] --> B[Optimal Position Setup]\n    A --> C[Smooth Transitions]\n    A --> D[Game Event Responses]\n    B --> E[Orthographic Projection]\n    C --> F[Animation System]\n    D --> G[Level Up Effects]\n    D --> H[Line Clear Effects]\n```",
+          "implementationBlocks": [
+            {
+              "filePath": "src/main.js",
+              "functionName": "initializeRenderer",
+              "startLine": 101,
+              "endLine": 139,
+              "language": "javascript",
+              "code": "async initializeRenderer() {\n        console.log('Setting up Three.js renderer...');\n        \n        // Get game container\n        this.gameContainer = document.getElementById('game-container');\n        this.canvas = document.getElementById('game-canvas');\n        \n        // Create Three.js scene\n        this.scene = new THREE.Scene();\n        this.scene.background = new THREE.Color(0x0a0a1a);\n        \n        // Set up camera\n        const aspect = this.canvas.clientWidth / this.canvas.clientHeight;\n        this.camera = new THREE.OrthographicCamera(\n            -aspect * 12, aspect * 12,\n            12, -12,\n            0.1, 100\n        );\n        \n        // Create renderer\n        this.renderer = new THREE.WebGLRenderer({\n            canvas: this.canvas,\n            antialias: true,\n            alpha: true\n        });\n    }",
+              "purpose": "Sets up the Three.js WebGL renderer with orthographic camera for optimal Tetris gameplay view"
+            }
+          ]
+        },
+        {
+          "id": "lighting_system",
+          "title": "Lighting System",
+          "description": "Dynamic lighting with performance optimization and visual effects",
+          "implementationStatus": "IMPLEMENTED",
+          "mermaidDiagram": "```mermaid\ngraph TD\n    A[LightingSystem] --> B[Ambient Lighting]\n    A --> C[Directional Lighting]\n    A --> D[Performance Modes]\n    A --> E[Visual Effects]\n    D --> F[High/Medium/Low Quality]\n    E --> G[Line Clear Effects]\n    E --> H[Tetris Flash Effects]\n```",
+          "implementationBlocks": [
+            {
+              "filePath": "src/main.js",
+              "functionName": "initializeGameSystems",
+              "startLine": 141,
+              "endLine": 162,
+              "language": "javascript",
+              "code": "initializeGameSystems() {\n        console.log('Initializing game systems...');\n        \n        // Initialize camera controller\n        this.cameraController = new CameraController(this.camera, this.scene);\n        this.cameraController.setOptimalPosition();\n        \n        // Initialize lighting system\n        this.lightingSystem = new LightingSystem(this.scene);\n        \n        // Initialize game board\n        this.gameBoard = new GameBoard(10, 20, 1);\n        this.gameBoard.render(this.scene);\n        \n        // Initialize scoring system\n        this.scoringSystem = new ScoringSystem();\n        \n        // Initialize game engine\n        this.gameEngine = new GameEngine(this.gameBoard, this, null);\n        \n        console.log('Game systems initialized');\n    }",
+              "purpose": "Initializes all game systems including lighting, camera, and game board rendering"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "user_interface",
+      "type": "FUNCTIONAL",
+      "title": "User Interface & Controls",
+      "description": "Game UI, input handling, and user interaction systems",
+      "implementationStatus": "IMPLEMENTED", 
+      "subModules": [
+        {
+          "id": "ui_manager",
+          "title": "UI Manager",
+          "description": "Game state screens, score display, and next piece preview",
+          "implementationStatus": "IMPLEMENTED",
+          "mermaidDiagram": "```mermaid\nstateDiagram-v2\n    [*] --> Loading\n    Loading --> Start\n    Start --> Playing : Start Game\n    Playing --> Paused : Pause\n    Paused --> Playing : Resume\n    Playing --> GameOver : Game Over\n    GameOver --> Start : Restart\n```",
+          "implementationBlocks": [
+            {
+              "filePath": "src/ui/UIManager.js",
+              "functionName": "initializeNextPiecePreview",
+              "startLine": 47,
+              "endLine": 81,
+              "language": "javascript",
+              "code": "initializeNextPiecePreview() {\n        if (!this.elements.nextPieceCanvas) {\n            console.warn('Next piece canvas not found');\n            return;\n        }\n        \n        // Set up Three.js scene for next piece preview\n        const canvas = this.elements.nextPieceCanvas;\n        this.nextPieceScene = new THREE.Scene();\n        \n        // Camera setup\n        this.nextPieceCamera = new THREE.OrthographicCamera(-3, 3, 3, -3, 0.1, 100);\n        this.nextPieceCamera.position.set(0, 0, 10);\n        this.nextPieceCamera.lookAt(0, 0, 0);\n        \n        // Renderer setup\n        this.nextPieceRenderer = new THREE.WebGLRenderer({\n            canvas: canvas,\n            antialias: true,\n            alpha: true\n        });\n        this.nextPieceRenderer.setSize(120, 120);\n        this.nextPieceRenderer.setClearColor(0x000000, 0);\n    }",
+              "purpose": "Sets up the next piece preview system with its own Three.js scene and renderer"
+            }
+          ]
+        },
+        {
+          "id": "input_handling",
+          "title": "Input Handling System",
+          "description": "Keyboard input processing for piece movement and game controls",
+          "implementationStatus": "IMPLEMENTED",
+          "mermaidDiagram": "```mermaid\nflowchart LR\n    A[Keyboard Input] --> B{Input Map}\n    B --> C[Arrow Left: Move Left]\n    B --> D[Arrow Right: Move Right]\n    B --> E[Arrow Down: Soft Drop]\n    B --> F[Arrow Up: Rotate]\n    B --> G[Space: Hard Drop]\n    B --> H[P/Escape: Pause]\n```",
+          "implementationBlocks": [
+            {
+              "filePath": "src/game/GameEngine.js",
+              "functionName": "setupInputHandling",
+              "startLine": 47,
+              "endLine": 64,
+              "language": "javascript",
+              "code": "setupInputHandling() {\n        this.inputMap = {\n            'ArrowLeft': () => this.movePiece(-1, 0),\n            'ArrowRight': () => this.movePiece(1, 0),\n            'ArrowDown': () => this.movePiece(0, 1),\n            'ArrowUp': () => this.rotatePiece(),\n            'Space': () => this.hardDrop(),\n            'KeyP': () => this.togglePause(),\n            'Escape': () => this.togglePause()\n        };\n        \n        document.addEventListener('keydown', (event) => {\n            if (this.isRunning && !this.isPaused && this.inputMap[event.code]) {\n                event.preventDefault();\n                this.handleInput(event.code);\n            }\n        });\n    }",
+              "purpose": "Maps keyboard inputs to game actions with spam prevention"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "performance_browser_compatibility",
+      "type": "FUNCTIONAL",
+      "title": "Performance & Browser Compatibility",
+      "description": "Performance monitoring, browser compatibility checks, and quality adjustments",
+      "implementationStatus": "IMPLEMENTED",
+      "subModules": [
+        {
+          "id": "performance_monitoring",
+          "title": "Performance Monitor",
+          "description": "FPS tracking and dynamic quality adjustment system",
+          "implementationStatus": "IMPLEMENTED",
+          "mermaidDiagram": "```mermaid\ngraph TD\n    A[PerformanceMonitor] --> B[FPS Tracking]\n    A --> C[Quality Suggestions]\n    A --> D[Performance Tiers]\n    B --> E[Frame Rate Analysis]\n    C --> F[Dynamic Adjustments]\n    D --> G[High/Medium/Low Settings]\n```",
+          "implementationBlocks": [
+            {
+              "filePath": "src/main.js",
+              "functionName": "initializePerformanceMonitoring",
+              "startLine": 76,
+              "endLine": 99,
+              "language": "javascript",
+              "code": "initializePerformanceMonitoring() {\n        console.log('Setting up performance monitoring...');\n        \n        this.performanceMonitor = new PerformanceMonitor();\n        \n        // Get recommended settings based on device capabilities\n        const recommendations = this.browserCompatibility.getRecommendedSettings();\n        \n        // Set performance targets\n        this.performanceMonitor.setTargets(30, recommendations.settings.targetFPS);\n        \n        // Handle performance changes\n        this.performanceMonitor.on('performanceChange', (data) => {\n            console.log(`Performance level changed to: ${data.level} (${data.fps} FPS)`);\n            this.handlePerformanceChange(data.level);\n        });\n        \n        this.performanceMonitor.startMonitoring();\n    }",
+              "purpose": "Initializes performance monitoring with dynamic quality adjustment based on device capabilities"
+            }
+          ]
+        },
+        {
+          "id": "browser_compatibility",
+          "title": "Browser Compatibility",
+          "description": "WebGL and ES6 feature detection with graceful fallbacks",
+          "implementationStatus": "IMPLEMENTED",
+          "mermaidDiagram": "```mermaid\ngraph TD\n    A[BrowserCompatibility] --> B[WebGL Detection]\n    A --> C[ES6 Support Check]\n    A --> D[Device Capabilities]\n    B --> E[Fallback Handling]\n    C --> F[Feature Detection]\n    D --> G[Performance Recommendations]\n```",
+          "implementationBlocks": [
+            {
+              "filePath": "src/main.js",
+              "functionName": "checkCompatibility",
+              "startLine": 59,
+              "endLine": 74,
+              "language": "javascript",
+              "code": "checkCompatibility() {\n        console.log('Checking browser compatibility...');\n        \n        this.browserCompatibility = BrowserCompatibility.provideFallback();\n        \n        if (!this.browserCompatibility.hasWebGLSupport()) {\n            throw new Error('WebGL is not supported by your browser');\n        }\n        \n        if (!this.browserCompatibility.hasES6Support()) {\n            throw new Error('Your browser does not support modern JavaScript features');\n        }\n        \n        // Print debug info in development\n        this.browserCompatibility.printDebugInfo();\n    }",
+              "purpose": "Validates browser capabilities for WebGL and modern JavaScript features before game initialization"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "scoring_progression",
+      "type": "FUNCTIONAL",
+      "title": "Scoring & Progression System",
+      "description": "Score calculation, level progression, and game statistics tracking",
+      "implementationStatus": "IMPLEMENTED",
+      "subModules": [
+        {
+          "id": "scoring_system",
+          "title": "Scoring System",
+          "description": "Points calculation based on line clears with level-based multipliers",
+          "implementationStatus": "IMPLEMENTED",
+          "mermaidDiagram": "```mermaid\nflowchart TD\n    A[Line Clear Event] --> B{Lines Cleared}\n    B -->|1 Line| C[Single: 100 pts]\n    B -->|2 Lines| D[Double: 300 pts]\n    B -->|3 Lines| E[Triple: 500 pts]\n    B -->|4 Lines| F[Tetris: 800 pts]\n    C --> G[Apply Level Multiplier]\n    D --> G\n    E --> G\n    F --> G\n    G --> H[Update Score & Level]\n```",
+          "implementationBlocks": [
+            {
+              "filePath": "src/main.js", 
+              "functionName": "handleLinesCleared",
+              "startLine": 321,
+              "endLine": 339,
+              "language": "javascript",
+              "code": "handleLinesCleared(data) {\n        console.log(`Lines cleared: ${data.lines}`);\n        \n        // Update scoring\n        const points = this.scoringSystem.addLines(data.lines);\n        \n        // Visual effects\n        this.lightingSystem.addLineClearEffect(data.clearedRows);\n        this.cameraController.onLineClear(data.clearedRows);\n        \n        // Special effect for Tetris\n        if (data.lines === 4) {\n            this.lightingSystem.addTetrisEffect();\n            this.cameraController.onTetris();\n        }\n        \n        // UI animation\n        this.uiManager.showLinesClearedAnimation(data.lines, data.lines === 4 ? 'tetris' : 'normal');\n    }",
+              "purpose": "Processes line clear events with scoring, visual effects, and special Tetris animations"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "user_gameplay_experience", 
+      "type": "USER_STORY",
+      "title": "Core Gameplay Experience",
+      "description": "As a player, I want to enjoy classic Tetris gameplay in an immersive 3D environment",
+      "implementationStatus": "IMPLEMENTED",
+      "subModules": [
+        {
+          "id": "game_initialization",
+          "title": "Game Start Experience", 
+          "description": "As a player, I want to quickly start playing 3D Tetris so that I can enjoy the game without complex setup",
+          "implementationStatus": "IMPLEMENTED",
+          "mermaidDiagram": "```mermaid\nsequenceDiagram\n    participant Player\n    participant UI\n    participant Game\n    participant Renderer\n    Player->>UI: Click Start Button\n    UI->>Game: Initialize Game Systems\n    Game->>Renderer: Setup 3D Scene\n    Renderer-->>Game: Scene Ready\n    Game-->>UI: Game Started\n    UI-->>Player: Show Playing Screen\n```",
+          "implementationBlocks": [
+            {
+              "filePath": "index.html",
+              "functionName": "DOM Structure",
+              "startLine": 53,
+              "endLine": 62,
+              "language": "html",
+              "code": "<div id=\"start-screen\" class=\"screen\">\n    <h1>Tetris 3D</h1>\n    <button id=\"start-button\">Start Game</button>\n</div>\n\n<div id=\"game-over-screen\" class=\"screen hidden\">\n    <h2>Game Over</h2>\n    <p>Final Score: <span id=\"final-score\">0</span></p>\n    <button id=\"restart-button\">Play Again</button>\n</div>",
+              "purpose": "Provides clean start and game over screens for simple game initiation and restart"
+            }
+          ]
+        },
+        {
+          "id": "piece_control_experience",
+          "title": "Piece Control Experience",
+          "description": "As a player, I want to control falling Tetris pieces using familiar keyboard controls so that I can leverage my existing Tetris skills",
+          "implementationStatus": "IMPLEMENTED",
+          "mermaidDiagram": "```mermaid\nflowchart LR\n    A[Player Input] --> B[Arrow Keys]\n    A --> C[Space Bar]\n    B --> D[Move Left/Right]\n    B --> E[Soft Drop Down]\n    B --> F[Rotate Up]\n    C --> G[Hard Drop]\n    D --> H[Piece Movement]\n    E --> H\n    F --> I[Piece Rotation]\n    G --> J[Instant Drop]\n```",
+          "implementationBlocks": [
+            {
+              "filePath": "index.html",
+              "functionName": "Controls Display",
+              "startLine": 43,
+              "endLine": 50,
+              "language": "html",
+              "code": "<div id=\"controls-info\">\n    <h3>Controls</h3>\n    <div class=\"control-item\">← → Move</div>\n    <div class=\"control-item\">↓ Soft Drop</div>\n    <div class=\"control-item\">↑ Rotate</div>\n    <div class=\"control-item\">Space Hard Drop</div>\n</div>",
+              "purpose": "Displays familiar Tetris control scheme to help players understand input options"
+            }
+          ]
+        },
+        {
+          "id": "visual_3d_experience",
+          "title": "3D Visual Experience",
+          "description": "As a player, I want to experience Tetris with impressive 3D visuals so that I can enjoy a modern take on the classic game",
+          "implementationStatus": "IMPLEMENTED",
+          "mermaidDiagram": "```mermaid\ngraph TD\n    A[3D Visual Experience] --> B[Falling Pieces]\n    A --> C[Placed Blocks]\n    A --> D[Line Clear Effects]\n    A --> E[Game Board Depth]\n    B --> F[Real-time 3D Rendering]\n    C --> G[Persistent 3D Blocks]\n    D --> H[Flash Animations]\n    E --> I[Grid Visualization]\n```",
+          "implementationBlocks": [
+            {
+              "filePath": "src/game/GameEngine.js",
+              "functionName": "createPlacedBlocks",
+              "startLine": 317,
+              "endLine": 357,
+              "language": "javascript",
+              "code": "createPlacedBlocks(piece) {\n        const blocks = piece.getBlocks();\n        const geometry = new THREE.BoxGeometry(0.9, 0.9, 0.9);\n        \n        blocks.forEach(block => {\n            // Create block mesh\n            const material = new THREE.MeshLambertMaterial({\n                color: block.color,\n                transparent: false\n            });\n            const blockMesh = new THREE.Mesh(geometry, material);\n            \n            // Create edges\n            const edges = new THREE.EdgesGeometry(geometry);\n            const edgeMaterial = new THREE.LineBasicMaterial({\n                color: 0xffffff,\n                transparent: true,\n                opacity: 0.6\n            });\n            const edgeLines = new THREE.LineSegments(edges, edgeMaterial);\n            \n            // Position blocks\n            const worldX = block.x - this.gameBoard.width / 2;\n            const worldY = this.gameBoard.height / 2 - block.y;\n            const worldZ = block.z;\n            \n            blockMesh.position.set(worldX, worldY, worldZ);\n            edgeLines.position.set(worldX, worldY, worldZ);\n            \n            this.placedBlocks.add(blockMesh);\n            this.placedBlocks.add(edgeLines);\n        });",
+              "purpose": "Creates 3D visual representation of placed Tetris blocks with proper lighting and edge definition"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "user_progression_feedback",
+      "type": "USER_STORY", 
+      "title": "Game Progression & Feedback",
+      "description": "As a player, I want clear feedback on my progress and performance so that I can understand my improvement and feel accomplished",
+      "implementationStatus": "IMPLEMENTED",
+      "subModules": [
+        {
+          "id": "score_level_tracking",
+          "title": "Score and Level Tracking",
+          "description": "As a player, I want to see my current score, level, and lines cleared so that I can track my progress during gameplay",
+          "implementationStatus": "IMPLEMENTED", 
+          "mermaidDiagram": "```mermaid\nflowchart TD\n    A[Game Progress] --> B[Score Display]\n    A --> C[Level Display]\n    A --> D[Lines Display]\n    B --> E[Real-time Updates]\n    C --> F[Level Progression]\n    D --> G[Lines Cleared Count]\n    F --> H[Increased Fall Speed]\n```",
+          "implementationBlocks": [
+            {
+              "filePath": "index.html",
+              "functionName": "Game Info Display",
+              "startLine": 22,
+              "endLine": 36,
+              "language": "html",
+              "code": "<div id=\"game-info\">\n    <div class=\"info-panel\">\n        <h3>Score</h3>\n        <span id=\"score\">0</span>\n    </div>\n    <div class=\"info-panel\">\n        <h3>Level</h3>\n        <span id=\"level\">1</span>\n    </div>\n    <div class=\"info-panel\">\n        <h3>Lines</h3>\n        <span id=\"lines\">0</span>\n    </div>\n</div>",
+              "purpose": "Displays real-time game statistics including score, level, and lines cleared for player feedback"
+            }
+          ]
+        },
+        {
+          "id": "next_piece_preview",
+          "title": "Next Piece Preview",
+          "description": "As a player, I want to see the next piece so that I can plan my strategy and prepare for optimal placement",
+          "implementationStatus": "IMPLEMENTED",
+          "mermaidDiagram": "```mermaid\ngraph TD\n    A[Next Piece System] --> B[3D Preview Canvas]\n    A --> C[Piece Generation]\n    B --> D[Mini 3D Scene]\n    C --> E[Random Piece Selection]\n    D --> F[Real-time Rendering]\n    E --> G[Standard 7-Piece Bag]\n```",
+          "implementationBlocks": [
+            {
+              "filePath": "index.html",
+              "functionName": "Next Piece Preview",
+              "startLine": 38,
+              "endLine": 42,
+              "language": "html",
+              "code": "<div id=\"next-piece-container\">\n    <h3>Next Piece</h3>\n    <canvas id=\"next-piece-canvas\"></canvas>\n</div>",
+              "purpose": "Provides a dedicated preview area for the upcoming Tetris piece to aid player strategy"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

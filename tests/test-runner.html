@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris 3D Test Suite</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-results {
+            margin: 20px 0;
+        }
+        .test-passed {
+            color: green;
+            font-weight: bold;
+        }
+        .test-failed {
+            color: red;
+            font-weight: bold;
+        }
+        .test-section {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        #canvas {
+            display: none; /* Hidden canvas for 3D tests */
+        }
+    </style>
+</head>
+<body>
+    <h1>Tetris 3D Test Suite</h1>
+    <div id="test-results"></div>
+    <canvas id="canvas" width="800" height="600"></canvas>
+
+    <!-- Three.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+    
+    <!-- Game Scripts -->
+    <script src="../src/game/GameBoard.js"></script>
+    <script src="../src/game/TetrominoPiece.js"></script>
+    <script src="../src/game/GameEngine.js"></script>
+    <script src="../src/game/ScoringSystem.js"></script>
+    <script src="../src/ui/UIManager.js"></script>
+    <script src="../src/graphics/CameraController.js"></script>
+    <script src="../src/graphics/LightingSystem.js"></script>
+    <script src="../src/performance/PerformanceMonitor.js"></script>
+    <script src="../src/compatibility/BrowserCompatibility.js"></script>
+
+    <!-- Test Framework -->
+    <script>
+        class TestRunner {
+            constructor() {
+                this.tests = [];
+                this.passed = 0;
+                this.failed = 0;
+                this.results = [];
+            }
+
+            test(description, fn) {
+                this.tests.push({ description, fn });
+            }
+
+            assert(condition, message) {
+                if (!condition) {
+                    throw new Error(message || 'Assertion failed');
+                }
+            }
+
+            assertEquals(actual, expected, message) {
+                if (actual !== expected) {
+                    throw new Error(message || `Expected ${expected}, got ${actual}`);
+                }
+            }
+
+            assertNotNull(value, message) {
+                if (value === null || value === undefined) {
+                    throw new Error(message || 'Value is null or undefined');
+                }
+            }
+
+            assertTrue(condition, message) {
+                if (!condition) {
+                    throw new Error(message || 'Expected true');
+                }
+            }
+
+            assertFalse(condition, message) {
+                if (condition) {
+                    throw new Error(message || 'Expected false');
+                }
+            }
+
+            async run() {
+                console.log('Running Tetris 3D Test Suite...');
+                const startTime = performance.now();
+
+                for (const test of this.tests) {
+                    try {
+                        await test.fn();
+                        this.passed++;
+                        this.results.push({
+                            description: test.description,
+                            status: 'passed',
+                            error: null
+                        });
+                        console.log(`✓ ${test.description}`);
+                    } catch (error) {
+                        this.failed++;
+                        this.results.push({
+                            description: test.description,
+                            status: 'failed',
+                            error: error.message
+                        });
+                        console.error(`✗ ${test.description}: ${error.message}`);
+                    }
+                }
+
+                const endTime = performance.now();
+                const duration = endTime - startTime;
+
+                this.displayResults(duration);
+                return {
+                    passed: this.passed,
+                    failed: this.failed,
+                    total: this.tests.length,
+                    duration: duration,
+                    results: this.results
+                };
+            }
+
+            displayResults(duration) {
+                const resultsDiv = document.getElementById('test-results');
+                
+                const summary = document.createElement('div');
+                summary.className = 'test-section';
+                summary.innerHTML = `
+                    <h2>Test Summary</h2>
+                    <p>Total tests: ${this.tests.length}</p>
+                    <p class="test-passed">Passed: ${this.passed}</p>
+                    <p class="test-failed">Failed: ${this.failed}</p>
+                    <p>Duration: ${duration.toFixed(2)}ms</p>
+                `;
+                resultsDiv.appendChild(summary);
+
+                this.results.forEach(result => {
+                    const testDiv = document.createElement('div');
+                    testDiv.className = 'test-section';
+                    testDiv.innerHTML = `
+                        <h3 class="${result.status === 'passed' ? 'test-passed' : 'test-failed'}">
+                            ${result.status === 'passed' ? '✓' : '✗'} ${result.description}
+                        </h3>
+                        ${result.error ? `<p>Error: ${result.error}</p>` : ''}
+                    `;
+                    resultsDiv.appendChild(testDiv);
+                });
+            }
+        }
+
+        // Initialize test runner
+        const runner = new TestRunner();
+
+        // Initialize 3D environment for testing
+        let scene, camera, renderer;
+        
+        function setupThreeJS() {
+            const canvas = document.getElementById('canvas');
+            scene = new THREE.Scene();
+            camera = new THREE.OrthographicCamera(-10, 10, 10, -10, 0.1, 100);
+            renderer = new THREE.WebGLRenderer({ canvas });
+            renderer.setSize(800, 600);
+            camera.position.set(0, 0, 10);
+        }
+
+        setupThreeJS();
+    </script>
+
+    <!-- Test Suites -->
+    <script src="tests/gameboard.test.js"></script>
+    <script src="tests/tetromino.test.js"></script>
+    <script src="tests/gameengine.test.js"></script>
+    <script src="tests/scoring.test.js"></script>
+    <script src="tests/compatibility.test.js"></script>
+    <script src="tests/performance.test.js"></script>
+    <script src="tests/camera.test.js"></script>
+    <script src="tests/lighting.test.js"></script>
+
+    <!-- Run all tests when page loads -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const results = await runner.run();
+                console.log('Test suite completed:', results);
+            } catch (error) {
+                console.error('Test suite failed:', error);
+            }
+        });
+    </script>
+</body>
+</html>
